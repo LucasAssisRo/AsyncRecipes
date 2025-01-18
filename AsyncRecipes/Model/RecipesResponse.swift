@@ -9,6 +9,15 @@ struct RecipesResponse {
     let recipes: [Recipe]
 }
 
+extension RecipesResponse {
+    static var mock: RecipesResponse {
+        .init(
+            recipes: (0...4).map { offset in
+                .mock(name: "Recipe \(offset)")
+            }
+        )
+    }
+}
 // MARK: - RecipesResponse + Decodable
 
 extension RecipesResponse: Decodable {}

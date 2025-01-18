@@ -22,6 +22,22 @@ struct Recipe {
     let youtubeUrl: String?
 }
 
+extension Recipe {
+    static  func mock(name: String = "Apam Balik") -> Recipe {
+        .init(
+            cuisine: "Malaysian",
+            name: name,
+            photoUrlLarge:
+                "https://d3jbb8n5wk0qxi.cloudfront.net/photos/b9ab0071-b281-4bee-b361-ec340d405320/large.jpg",
+            photoUrlSmall:
+                "https://d3jbb8n5wk0qxi.cloudfront.net/photos/b9ab0071-b281-4bee-b361-ec340d405320/small.jpg",
+            uuid: "https://www.nyonyacooking.com/recipes/apam-balik~SJ5WuvsDf9WQ",
+            sourceUrl: "0c6ca6e7-e32a-4053-b824-1dbf749910d8",
+            youtubeUrl: "https://www.youtube.com/watch?v=6R8ffRRJcrg"
+        )
+    }
+}
+
 // MARK: - Recipe + Identifiable
 
 extension Recipe: Identifiable {
