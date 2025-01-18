@@ -25,28 +25,7 @@ struct RecipeList: View {
                         Button {
                             toggleSelectedRecipe(with: recipe)
                         } label: {
-                            HStack {
-                                if let url = recipe.photoUrlSmall.flatMap(URL.init(string:)) {
-                                    AsyncImage(url: url) { image in
-                                        image.resizable()
-                                    } placeholder: {
-                                        EmptyView()
-                                    }
-                                    .frame(width: 80, height: 80)
-                                    .clipShape(.rect(cornerRadius: 8))
-                                }
-                                VStack(alignment: .leading) {
-                                    Text(recipe.name)
-                                        .font(.headline)
-                                    Text(recipe.cuisine)
-                                        .font(.subheadline)
-                                }
-                            }
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .padding()
-                            .background(Color(uiColor: .secondarySystemBackground))
-                            .clipShape(.rect(cornerRadius: 8))
-
+                            RecipeCard(recipe: recipe)
                         }
                         .foregroundStyle(.primary)
                         .shadow(radius: 8)
@@ -73,7 +52,9 @@ struct RecipeList: View {
     func loadRecipes() async {
         do {
             let (data, _) = try await URLSession.shared.data(for: .init(url: url))
+            print(String(data: data, encoding: .utf8)!)
             recipesResponse = try decoder.decode(RecipesResponse.self, from: data)
+
         } catch {
 
         }
