@@ -31,19 +31,19 @@ struct HTMLView: UIViewRepresentable {
     final class Coordinator: NSObject, WKNavigationDelegate {
         let url: URL
 
-        private lazy var webView = with(WKWebView()) { webView in
+        private(set) lazy var webView = with(WKWebView()) { webView in
             webView.navigationDelegate = self
             webView.isHidden = true
             webView.translatesAutoresizingMaskIntoConstraints = false
         }
 
-        private let loadingIndicator = with(UIActivityIndicatorView(style: .medium)) { loadingIndicator in
+        let loadingIndicator = with(UIActivityIndicatorView(style: .medium)) { loadingIndicator in
             loadingIndicator.hidesWhenStopped = true
-            loadingIndicator.startAnimating()
+            loadingIndicator.stopAnimating()
             loadingIndicator.translatesAutoresizingMaskIntoConstraints = false
         }
         
-        private lazy var errorButton = with(UIButton()) { errorButton in
+        private(set) lazy var errorButton = with(UIButton()) { errorButton in
             errorButton.configuration = with(UIButton.Configuration.plain()) { configuration in
                 configuration.title = "Something went wrong!"
                 configuration.image = UIImage(systemName: "exclamationmark.triangle.fill")
@@ -110,5 +110,5 @@ struct HTMLView: UIViewRepresentable {
 }
 
 #Preview {
-    HTMLView(url: URL(string: "https://test")!)
+    HTMLView(url: URL(string: "https://lucasassisro.vercel.app")!)
 }
