@@ -84,9 +84,3 @@ struct RecipeList: View {
 #Preview {
     RecipeList()
 }
-
-func with<Value>(_ value: Value, _ block: (_ value: inout Value) -> Void) -> Value {
-    var value = value
-    block(&value)
-    return value
-}
