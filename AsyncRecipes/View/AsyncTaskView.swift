@@ -9,7 +9,7 @@ import SwiftUI
 
 struct AsyncTaskView<Content, ContentView: View, ErrorView: View, LoadingView: View>: View {
     var task: () async throws -> Content
-    var contentView: (_ content: Content, _ reloadTask: () -> Void) -> ContentView
+    var contentView: (_ content: Content, _ reloadTask: @Sendable @escaping () -> Void) -> ContentView
     var errorView: (_ error: any Error, _ previousContent: Content?) -> ErrorView
     var loadingView: (_ previousContent: Content?) -> LoadingView
 
@@ -18,9 +18,12 @@ struct AsyncTaskView<Content, ContentView: View, ErrorView: View, LoadingView: V
 
     init(
         task: @escaping () async throws -> Content,
-        @ViewBuilder contentView: @escaping (_ content: Content, _ reloadTask: () -> Void) -> ContentView,
-        @ViewBuilder errorView: @escaping (_ error: any Error, _ previousContent: Content?) -> ErrorView,
-        @ViewBuilder loadingView: @escaping (_ previousContent: Content?) -> LoadingView
+        @ViewBuilder
+        contentView: @escaping (_ content: Content, _ reloadTask: @Sendable @escaping () -> Void) -> ContentView,
+        @ViewBuilder
+        errorView: @escaping (_ error: any Error, _ previousContent: Content?) -> ErrorView,
+        @ViewBuilder
+        loadingView: @escaping (_ previousContent: Content?) -> LoadingView
     ) {
         self.task = task
         self.contentView = contentView
@@ -56,7 +59,7 @@ struct AsyncTaskView<Content, ContentView: View, ErrorView: View, LoadingView: V
             state = .error(error, previousContent: state.content)
         }
     }
-    
+
     func reloadTask() {
         taskId = UUID()
     }
@@ -65,21 +68,8 @@ struct AsyncTaskView<Content, ContentView: View, ErrorView: View, LoadingView: V
 extension AsyncTaskView {
     init(
         task: @escaping () async throws -> Content,
-        @ViewBuilder contentView: @escaping (_ content: Content, _ reloadTask: () -> Void) -> ContentView,
-        @ViewBuilder errorView: @escaping (_ error: any Error, _ previousContent: Content?) -> ErrorView
-    )
-    where
-        LoadingView == ProgressView<EmptyView, EmptyView>
-    {
-        self.task = task
-        self.contentView = contentView
-        self.errorView = errorView
-        self.loadingView = { _ in ProgressView() }
-    }
-
-    init(
-        task: @escaping () async throws -> Content,
-        @ViewBuilder contentView: @escaping (_ content: Content, _ reloadTask: () -> Void) -> ContentView
+        @ViewBuilder
+        contentView: @escaping (_ content: Content, _ reloadTask: @Sendable @escaping () -> Void) -> ContentView
     )
     where
         LoadingView == ProgressView<EmptyView, EmptyView>,

@@ -9,36 +9,38 @@ import SwiftData
 import SwiftUI
 
 struct RecipeList: View {
-    @State private var recipesResponse: RecipesResponse?
     @State private var selectedRecipe: Recipe?
 
-    let url = URL(string: "https://d3jbb8n5wk0qxi.cloudfront.net/recipes.json")!
+    let url: URL
     let decoder = with(JSONDecoder()) { decoder in
         decoder.keyDecodingStrategy = .convertFromSnakeCase
     }
 
     var body: some View {
         NavigationStack {
-            Group {
-                if let recipes = recipesResponse?.recipes {
-                    List(recipes) { recipe in
-                        Button {
-                            toggleSelectedRecipe(with: recipe)
+            AsyncTaskView(task: loadRecipes) { response, reloadTask in
+                if case let recipes = response.recipes,!recipes.isEmpty {
+                    List(response.recipes) { recipe in
+                        NavigationLink {
+                            RecipeDetail(recipe: recipe)
                         } label: {
-                            let shouldCardExpand = recipe == selectedRecipe
-                            RecipeCard(recipe: recipe, isExpanded: shouldCardExpand)
+                            RecipeCard(recipe: recipe)
                         }
                         .foregroundStyle(.primary)
                         .shadow(radius: 8)
                         .listRowBackground(Color.clear)
                         .listRowSeparator(.hidden)
                     }
+                    .refreshable(action: reloadTask)
+                } else {
+                    Button(
+                        "No recipes found. Tap to try again",
+                        systemImage: "exclamationmark.triangle.fill",
+                        action: reloadTask
+                    )
                 }
             }
             .navigationTitle("Recipes")
-        }
-        .task {
-            await loadRecipes()
         }
     }
 
@@ -50,19 +52,25 @@ struct RecipeList: View {
         }
     }
 
-    func loadRecipes() async {
-        do {
-            let (data, _) = try await URLSession.shared.data(for: .init(url: url))
-            print(String(data: data, encoding: .utf8)!)
-            recipesResponse = try decoder.decode(RecipesResponse.self, from: data)
-
-        } catch {
-
-        }
+    func loadRecipes() async throws -> RecipesResponse {
+        try await decoder.decode(
+            RecipesResponse.self,
+            from: URLSession.shared.data(from: url).0
+        )
     }
 
 }
 
 #Preview {
-    RecipeList()
+    TabView {
+        Tab("Success", systemImage: "star") {
+            RecipeList(url: URL(string: "https://d3jbb8n5wk0qxi.cloudfront.net/recipes.json")!)
+        }
+        Tab("Empty", systemImage: "rectangle.portrait") {
+            RecipeList(url: URL(string: "https://d3jbb8n5wk0qxi.cloudfront.net/recipes-empty.json")!)
+        }
+        Tab("Failure", systemImage: "exclamationmark.shield") {
+            RecipeList(url: URL(string: "https://d3jbb8n5wk0qxi.cloudfront.net/recipes-malformed.json")!)
+        }
+    }
 }

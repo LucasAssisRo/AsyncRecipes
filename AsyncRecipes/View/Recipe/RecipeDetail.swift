@@ -45,7 +45,6 @@ struct RecipeDetail: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
         }
-        .edgesIgnoringSafeArea(.all)
         .task {
             await fetchYoutubeEmbedding()
         }
