@@ -5,25 +5,110 @@
 //  Created by Lucas Assis Rodrigues on 1/17/25.
 //
 
-import UIKit
 import SwiftUI
+import UIKit
 import WebKit
 
 struct HTMLView: UIViewRepresentable {
     let url: URL
-    let html: String
-    
-    private let webView = WKWebView()
 
-    func makeUIView(context: Context) -> WKWebView {
-        webView
+    @State var task: Task<Void, Never>?
+
+    init(url: URL) {
+        self.url = url
     }
 
-    func updateUIView(_ uiView: WKWebView, context: Context) {
-        uiView.loadHTMLString(html, baseURL: url)
+    func makeCoordinator() -> Coordinator {
+        Coordinator(url: url)
+    }
+
+    func makeUIView(context: Context) -> UIView {
+        context.coordinator.contentView
+    }
+
+    func updateUIView(_ uiView: UIView, context: Context) {}
+
+    final class Coordinator: NSObject, WKNavigationDelegate {
+        let url: URL
+
+        private lazy var webView = with(WKWebView()) { webView in
+            webView.navigationDelegate = self
+            webView.isHidden = true
+            webView.translatesAutoresizingMaskIntoConstraints = false
+        }
+
+        private let loadingIndicator = with(UIActivityIndicatorView(style: .medium)) { loadingIndicator in
+            loadingIndicator.hidesWhenStopped = true
+            loadingIndicator.startAnimating()
+            loadingIndicator.translatesAutoresizingMaskIntoConstraints = false
+        }
+        
+        private lazy var errorButton = with(UIButton()) { errorButton in
+            errorButton.configuration = with(UIButton.Configuration.plain()) { configuration in
+                configuration.title = "Something went wrong!"
+                configuration.image = UIImage(systemName: "exclamationmark.triangle.fill")
+            }
+            errorButton.isHidden = true
+            errorButton.tintColor = .systemRed
+            errorButton.translatesAutoresizingMaskIntoConstraints = false
+            errorButton.addAction(
+                UIAction { [weak self] _ in
+                    guard let self else { return }
+                    loadUrl()
+                },
+                for: .touchUpInside)
+        }
+
+        let contentView = UIView()
+
+        init(url: URL) {
+            self.url = url
+            super.init()
+
+            contentView.addSubview(webView)
+            contentView.addSubview(loadingIndicator)
+            contentView.addSubview(errorButton)
+            
+            NSLayoutConstraint.activate([
+                webView.topAnchor.constraint(equalTo: contentView.topAnchor),
+                webView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
+                webView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+                webView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+                
+                loadingIndicator.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
+                loadingIndicator.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
+                
+                errorButton.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
+                errorButton.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
+            ])
+            
+            loadUrl()
+        }
+        
+        func loadUrl() {
+            webView.load(URLRequest(url: url))
+        }
+
+        func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
+            loadingIndicator.startAnimating()
+            errorButton.isHidden = true
+            webView.isHidden = true
+        }
+
+        func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+            loadingIndicator.stopAnimating()
+            errorButton.isHidden = true
+            webView.isHidden = false
+        }
+        
+        func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: any Error) {
+            loadingIndicator.stopAnimating()
+            errorButton.isHidden = false
+            webView.isHidden = true
+        }
     }
 }
 
 #Preview {
-    HTMLView(url: URL(string: "https://test.io")!, html: "<h1 style='font-size:20rem'>Test")
+    HTMLView(url: URL(string: "https://test")!)
 }

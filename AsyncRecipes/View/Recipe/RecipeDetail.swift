@@ -9,59 +9,50 @@ import SwiftUI
 
 struct RecipeDetail: View {
     var recipe: Recipe
-    
-    @State private var youtubeHTML: String?
-    
+
     private var youtubeEmbedUrl: URL? {
         recipe.youtubeUrl.flatMap(URL.init(string:))?.asYoutubeEmbeded
     }
-    
+
     var body: some View {
-        VStack {
-            if let url = recipe.photoUrlLarge.flatMap(URL.init(string:)) {
-                AsyncImage(url: url) { image in
-                    image.resizable()
-                        .scaledToFill()
-                } placeholder: {
-                    ProgressView()
-                }
-                .frame(maxWidth: .infinity, maxHeight: 400)
-                .clipped()
-            }
-            ScrollView {
-                VStack(alignment: .leading) {
-                    Text(recipe.name)
-                        .font(.largeTitle)
-                        .fontWeight(.black)
-                    Text(recipe.cuisine)
-                        .font(.title)
-                        .fontWeight(.thin)
-                    if let youtubeEmbedUrl, let youtubeHTML {
-                        HTMLView(url: youtubeEmbedUrl, html: youtubeHTML)
-                            .frame(maxWidth: .infinity, idealHeight: 200, maxHeight: 400)
+        ScrollView {
+            VStack(alignment: .leading) {
+                if let url = recipe.photoUrlLarge.flatMap(URL.init(string:)) {
+                    AsyncImage(url: url) { image in
+                        image.resizable()
+                            .scaledToFill()
+                    } placeholder: {
+                        ProgressView()
                     }
+                    .frame(maxWidth: .infinity, maxHeight: 400)
+                    .roundedCorners()
+                    .padding()
                 }
-                .padding(.horizontal)
-                .frame(maxWidth: .infinity, alignment: .leading)
+                if let youtubeEmbedUrl {
+                    HTMLView(url: youtubeEmbedUrl)
+                        .frame(maxWidth: .infinity, idealHeight: 200, maxHeight: 400)
+                        .roundedCorners()
+                }
             }
+            .padding(.horizontal)
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .task {
-            await fetchYoutubeEmbedding()
-        }
-    }
-    
-    func fetchYoutubeEmbedding() async {
-        guard let youtubeEmbedUrl else { return }
-        do {
-            let (data, _) = try await URLSession.shared.data(from: youtubeEmbedUrl)
-            youtubeHTML = String(data: data, encoding: .utf8)
-        } catch {
-            
+        .toolbar {
+            ToolbarItem(placement: .principal) {
+                VStack {
+                    Text(recipe.name)
+                        .fontWeight(.semibold)
+                    Text(recipe.cuisine)
+                        .font(.subheadline)
+                        .fontWeight(.thin)
+                }
+            }
         }
     }
 }
 
 #Preview {
-    RecipeDetail(recipe: .mock())
+    NavigationStack {
+        RecipeDetail(recipe: .mock())
+    }
 }
-

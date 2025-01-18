@@ -20,7 +20,7 @@ struct RecipeCard: View {
                         ProgressView()
                     }
                     .frame(width: 80, height: 80)
-                    .clipShape(.rect(cornerRadius: 8))
+                    .roundedCorners()
                 }
                 VStack(alignment: .leading) {
                     Text(recipe.name)
@@ -33,7 +33,7 @@ struct RecipeCard: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding()
         .background(Color(uiColor: .secondarySystemBackground))
-        .clipShape(.rect(cornerRadius: 8))
+        .roundedCorners()
     }
 }
 
