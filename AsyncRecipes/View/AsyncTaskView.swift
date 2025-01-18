@@ -81,7 +81,7 @@ extension AsyncTaskView {
         ErrorView == Label<Text, Image>
     {
         self.init(task: task, contentView: contentView) /* errorView: */ { _, _ in
-            Label("Something went wrong!", systemImage: "exclamationmark.triangle.fill")
+            Label("Something went wrong! Tap to try again", systemImage: "exclamationmark.triangle.fill")
         } loadingView: { _ in
             ProgressView()
         }

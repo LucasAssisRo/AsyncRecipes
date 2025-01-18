@@ -15,8 +15,8 @@ struct RecipeCard: View {
             HStack {
                 if let photoUrlSmall = recipe.photoUrlSmall {
                     ImageView(imageName: photoUrlSmall)
-                    .frame(width: 80, height: 80)
-                    .roundedCorners()
+                        .frame(width: 80, height: 80)
+                        .roundedCorners()
                 }
                 VStack(alignment: .leading) {
                     Text(recipe.name)
