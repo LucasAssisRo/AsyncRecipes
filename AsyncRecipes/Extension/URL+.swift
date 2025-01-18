@@ -8,6 +8,8 @@
 import Foundation
 
 extension URL {
+    /// Transforms youtube watch video url into a youtube embedding one.
+    /// Returns `nil` if the original url is not a youtube watch video url.
     var asYoutubeEmbeded: Self? {
         guard case let youtube = "youtube",
             absoluteString.contains(youtube),
