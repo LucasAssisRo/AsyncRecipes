@@ -5,7 +5,7 @@
 //  Created by Lucas Assis Rodrigues on 1/17/25.
 //
 
-func with<Value>(_ value: Value, _ block: (_ value: inout Value) -> Void) -> Value {
+func with<Value>(_ value: Value, _ block: (inout Value) -> Void) -> Value {
     var value = value
     block(&value)
     return value
