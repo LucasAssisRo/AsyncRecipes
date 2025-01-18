@@ -19,12 +19,22 @@ struct RecipeList: View {
     var body: some View {
         NavigationStack {
             AsyncTaskView(task: loadRecipes) { response, reloadTask in
-                if case let recipes = response.recipes,!recipes.isEmpty {
-                    List(response.recipes) { recipe in
-                        NavigationLink {
-                            RecipeDetail(recipe: recipe)
-                        } label: {
-                            RecipeCard(recipe: recipe)
+                if case let recipes = response.recipes, !recipes.isEmpty {
+                    List(recipes) { recipe in
+                        Group {
+                            if recipe.youtubeUrl != nil {
+                                NavigationLink {
+                                    RecipeDetail(recipe: recipe)
+                                } label: {
+                                    RecipeCard(recipe: recipe)
+                                }
+                            } else if let sourceUrl = recipe.sourceUrl.flatMap(URL.init(string:)) {
+                                Link(destination: sourceUrl) {
+                                    RecipeCard(recipe: recipe)
+                                }
+                            } else {
+                                RecipeCard(recipe: recipe)
+                            }
                         }
                         .foregroundStyle(.primary)
                         .shadow(radius: 8)
@@ -61,11 +71,13 @@ struct RecipeList: View {
 
 }
 
+@available(iOS 18.0, *)
 #Preview {
     TabView {
         Tab("Success", systemImage: "star") {
             RecipeList(url: URL(string: "https://d3jbb8n5wk0qxi.cloudfront.net/recipes.json")!)
         }
+
         Tab("Empty", systemImage: "rectangle.portrait") {
             RecipeList(url: URL(string: "https://d3jbb8n5wk0qxi.cloudfront.net/recipes-empty.json")!)
         }

@@ -28,11 +28,13 @@ struct RecipeDetail: View {
                     .roundedCorners()
                     .padding()
                 }
+
                 if let youtubeEmbedUrl {
                     HTMLView(url: youtubeEmbedUrl)
                         .frame(maxWidth: .infinity, idealHeight: 200, maxHeight: 400)
                         .roundedCorners()
                 }
+
             }
             .padding(.horizontal)
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -45,6 +47,14 @@ struct RecipeDetail: View {
                     Text(recipe.cuisine)
                         .font(.subheadline)
                         .fontWeight(.thin)
+                }
+            }
+            if let sourceUrl = recipe.sourceUrl.flatMap(URL.init(string:)) {
+
+                ToolbarItem(placement: .primaryAction) {
+                    Link(destination: sourceUrl) {
+                        Image(systemName: "safari")
+                    }
                 }
             }
         }
