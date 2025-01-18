@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct ImageView: View {
-    private var imageCache: ImageCache
+    private let imageCache: ImageCache
 
     init(imageName: String) {
         self.imageCache = ImageCache(imageName: imageName)

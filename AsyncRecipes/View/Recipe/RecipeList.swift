@@ -9,16 +9,16 @@ import SwiftData
 import SwiftUI
 
 struct RecipeList: View {
+    private var recipeListFetcher: RecipeListFetcher
     @State private var selectedRecipe: Recipe?
-
-    let url: URL
-    let decoder = with(JSONDecoder()) { decoder in
-        decoder.keyDecodingStrategy = .convertFromSnakeCase
+    
+    init(url: URL) {
+        recipeListFetcher = RecipeListFetcher(url: url)
     }
 
     var body: some View {
         NavigationStack {
-            AsyncTaskView(task: loadRecipes) { response, reloadTask in
+            AsyncTaskView(task: recipeListFetcher.loadRecipes) { response, reloadTask in
                 if case let recipes = response.recipes, !recipes.isEmpty {
                     List(recipes) { recipe in
                         Group {
@@ -61,14 +61,6 @@ struct RecipeList: View {
             selectedRecipe = recipe
         }
     }
-
-    func loadRecipes() async throws -> RecipesResponse {
-        try await decoder.decode(
-            RecipesResponse.self,
-            from: URLSession.shared.data(from: url).0
-        )
-    }
-
 }
 
 @available(iOS 18.0, *)
