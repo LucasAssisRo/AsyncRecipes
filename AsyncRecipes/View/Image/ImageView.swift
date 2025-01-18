@@ -19,6 +19,8 @@ struct ImageView: View {
             Image(uiImage: image)
                 .resizable()
                 .scaledToFill()
+        } errorView: { _, _, reloadTask in
+            BlankAsyncTaskView.defaultErrorView(reloadTask: reloadTask)
         }
     }
 }

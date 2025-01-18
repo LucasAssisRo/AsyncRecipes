@@ -20,28 +20,8 @@ struct RecipeList: View {
         NavigationStack {
             AsyncTaskView(task: recipeListFetcher.loadRecipes) { response, reloadTask in
                 if case let recipes = response.recipes, !recipes.isEmpty {
-                    List(recipes) { recipe in
-                        Group {
-                            if recipe.youtubeUrl != nil {
-                                NavigationLink {
-                                    RecipeDetail(recipe: recipe)
-                                } label: {
-                                    RecipeCard(recipe: recipe)
-                                }
-                            } else if let sourceUrl = recipe.sourceUrl.flatMap(URL.init(string:)) {
-                                Link(destination: sourceUrl) {
-                                    RecipeCard(recipe: recipe)
-                                }
-                            } else {
-                                RecipeCard(recipe: recipe)
-                            }
-                        }
-                        .foregroundStyle(.primary)
-                        .shadow(radius: 8)
-                        .listRowBackground(Color.clear)
-                        .listRowSeparator(.hidden)
-                    }
-                    .refreshable(action: reloadTask)
+                    recipeList(recipes: recipes)
+                        .refreshable(action: reloadTask)
                 } else {
                     Button(
                         "No recipes found. Tap to try again",
@@ -49,8 +29,49 @@ struct RecipeList: View {
                         action: reloadTask
                     )
                 }
+            } errorView: { error, previousResponse, reloadTask in
+                VStack {
+                    let errorButton = BlankAsyncTaskView.defaultErrorView(reloadTask: reloadTask)
+                    if let recipes = previousResponse?.recipes, !recipes.isEmpty {
+                        recipeList(recipes: recipes)
+                            .foregroundStyle(.primary)
+                            .refreshable(action: reloadTask)
+                            .toolbar {
+                                ToolbarItem(placement: .destructiveAction) {
+                                    errorButton.tint(.red)
+                                }
+                            }
+                    } else {
+                        errorButton
+                    }
+                }
             }
             .navigationTitle("Recipes")
+        }
+    }
+
+    @ViewBuilder
+    private func recipeList(recipes: [Recipe]) -> some View {
+        List(recipes) { recipe in
+            Group {
+                if recipe.youtubeUrl != nil {
+                    NavigationLink {
+                        RecipeDetail(recipe: recipe)
+                    } label: {
+                        RecipeCard(recipe: recipe)
+                    }
+                } else if let sourceUrl = recipe.sourceUrl.flatMap(URL.init(string:)) {
+                    Link(destination: sourceUrl) {
+                        RecipeCard(recipe: recipe)
+                    }
+                } else {
+                    RecipeCard(recipe: recipe)
+                }
+            }
+            .foregroundStyle(.primary)
+            .shadow(radius: 8)
+            .listRowBackground(Color.clear)
+            .listRowSeparator(.hidden)
         }
     }
 

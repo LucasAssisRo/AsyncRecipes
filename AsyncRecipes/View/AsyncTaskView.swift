@@ -12,7 +12,12 @@ struct AsyncTaskView<Content, ContentView: View, ErrorView: View, LoadingView: V
     var logger: Logger
     var task: () async throws -> Content
     var contentView: (_ content: Content, _ reloadTask: @Sendable @escaping () -> Void) -> ContentView
-    var errorView: (_ error: any Error, _ previousContent: Content?) -> ErrorView
+    var errorView:
+        (
+            _ error: any Error,
+            _ previousContent: Content?,
+            _ reloadTask: @Sendable @escaping () -> Void
+        ) -> ErrorView
     var loadingView: (_ previousContent: Content?) -> LoadingView
 
     @State private var state = StateMachine()
@@ -21,12 +26,16 @@ struct AsyncTaskView<Content, ContentView: View, ErrorView: View, LoadingView: V
     init(
         logger: Logger = Logger(subsystem: "AsyncRecipes", category: "AsyncTaskView"),
         task: @escaping () async throws -> Content,
-        @ViewBuilder
-        contentView: @escaping (_ content: Content, _ reloadTask: @Sendable @escaping () -> Void) -> ContentView,
-        @ViewBuilder
-        errorView: @escaping (_ error: any Error, _ previousContent: Content?) -> ErrorView,
-        @ViewBuilder
-        loadingView: @escaping (_ previousContent: Content?) -> LoadingView
+        @ViewBuilder contentView: @escaping (
+            _ content: Content,
+            _ reloadTask: @Sendable @escaping () -> Void
+        ) -> ContentView,
+        @ViewBuilder errorView: @escaping (
+            _ error: any Error,
+            _ previousContent: Content?,
+            _ reloadTask: @Sendable @escaping () -> Void
+        ) -> ErrorView,
+        @ViewBuilder loadingView: @escaping (_ previousContent: Content?) -> LoadingView
     ) {
         self.logger = logger
         self.task = task
@@ -41,10 +50,7 @@ struct AsyncTaskView<Content, ContentView: View, ErrorView: View, LoadingView: V
             case let .content(content):
                 contentView(content, reloadTask)
             case let .error(error, previousContent: content):
-                Button(action: reloadTask) {
-                    errorView(error, content)
-                }
-                .foregroundStyle(.red)
+                errorView(error, content, reloadTask)
             case let .loading(previousContent: content):
                 loadingView(content)
             }
@@ -70,19 +76,33 @@ struct AsyncTaskView<Content, ContentView: View, ErrorView: View, LoadingView: V
     }
 }
 
+typealias BlankAsyncTaskView = AsyncTaskView<Void, EmptyView, EmptyView, EmptyView>
+
 extension AsyncTaskView {
+    @ViewBuilder
+    static func defaultErrorView(reloadTask: @Sendable @escaping () -> Void) -> some View {
+        Button(action: reloadTask) {
+            Label("Something went wrong! Tap to try again", systemImage: "exclamationmark.triangle.fill")
+        }
+        .foregroundStyle(.red)
+    }
+
     init(
         task: @escaping () async throws -> Content,
-        @ViewBuilder
-        contentView: @escaping (_ content: Content, _ reloadTask: @Sendable @escaping () -> Void) -> ContentView
+        @ViewBuilder contentView: @escaping (
+            _ content: Content,
+            _ reloadTask: @Sendable @escaping () -> Void
+        ) -> ContentView,
+        @ViewBuilder errorView: @escaping (
+            _ error: any Error,
+            _ previousContent: Content?,
+            _ reloadTask: @Sendable @escaping () -> Void
+        ) -> ErrorView
     )
     where
-        LoadingView == ProgressView<EmptyView, EmptyView>,
-        ErrorView == Label<Text, Image>
+        LoadingView == ProgressView<EmptyView, EmptyView>
     {
-        self.init(task: task, contentView: contentView) /* errorView: */ { _, _ in
-            Label("Something went wrong! Tap to try again", systemImage: "exclamationmark.triangle.fill")
-        } loadingView: { _ in
+        self.init(task: task, contentView: contentView, errorView: errorView) { _ in
             ProgressView()
         }
     }
@@ -102,6 +122,8 @@ extension AsyncTaskView {
             .value
         } contentView: { content, _ in
             Color.green
+        } errorView: { _, _, reloadTask in
+            BlankAsyncTaskView.defaultErrorView(reloadTask: reloadTask)
         }
         AsyncTaskView {
             try await Task {
@@ -111,6 +133,8 @@ extension AsyncTaskView {
             .value
         } contentView: { content, _ in
             Color.green
+        } errorView: { _, _, reloadTask in
+            BlankAsyncTaskView.defaultErrorView(reloadTask: reloadTask)
         }
     }
     .padding()
