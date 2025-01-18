@@ -16,6 +16,8 @@ final class ImageCache {
     let logger: Logger
 
     var image: UIImage?
+    
+    private(set) var saveImageToDiskTask: Task<Void, Never>?
 
     init(
         imageName: String,
@@ -45,7 +47,7 @@ final class ImageCache {
 
         do {
             if let uiImage = try await loadImageFromRemote() {
-                Task { await saveRemoteImageToDisk(image: uiImage) }
+                saveImageToDiskTask = Task { await saveRemoteImageToDisk(image: uiImage) }
                 image = uiImage
                 return uiImage
             }
@@ -62,7 +64,7 @@ extension ImageCache {
         case failedToCreateUIImage
     }
 
-    var documetsDirectory: URL {
+    var documentsDirectory: URL {
         get throws {
             try fileManager.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
         }
@@ -74,24 +76,24 @@ extension ImageCache {
                 fileURLWithPath: imageName.replacingOccurrences(of: "/", with: "_")
                     .replacingOccurrences(of: ":", with: "_")
                     .replacingOccurrences(of: ".", with: "_"),
-                relativeTo: documetsDirectory
+                relativeTo: documentsDirectory
             )
                 .appendingPathExtension("png")
         }
     }
 
-    private func loadImageFromFile() async throws -> UIImage? {
+    func loadImageFromFile() async throws -> UIImage? {
         let data = try await urlSession.data(from: imageFileURL).0
         return UIImage(data: data)
     }
 
-    private func loadImageFromRemote() async throws -> UIImage? {
+    func loadImageFromRemote() async throws -> UIImage? {
         guard let imageURL = URL(string: imageName) else { return nil }
         let data = try await urlSession.data(from: imageURL).0
         return UIImage(data: data)
     }
 
-    private func saveRemoteImageToDisk(image: UIImage) async {
+    func saveRemoteImageToDisk(image: UIImage) async {
         do {
             guard let imageData = image.pngData() else { return }
             try imageData.write(to: imageFileURL)

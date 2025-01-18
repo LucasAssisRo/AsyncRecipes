@@ -6,19 +6,20 @@
 //
 
 import Testing
+
 @testable import AsyncRecipes
 
-struct WithTests{
-    @Test func updateInline() async throws {
+struct WithTests {
+    @Test private func updateInline() async throws {
         struct Test: Equatable {
             var foo: Int = .min
         }
-        
+
         let expected = Test(foo: 1)
         let subject = with(Test()) { subject in
             subject.foo = 1
         }
-        
+
         #expect(subject == expected)
     }
 }
