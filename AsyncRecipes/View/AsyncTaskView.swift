@@ -5,8 +5,8 @@
 //  Created by Lucas Assis Rodrigues on 1/17/25.
 //
 
-import SwiftUI
 import OSLog
+import SwiftUI
 
 struct AsyncTaskView<Content, ContentView: View, ErrorView: View, LoadingView: View>: View {
     var logger: Logger
@@ -15,7 +15,7 @@ struct AsyncTaskView<Content, ContentView: View, ErrorView: View, LoadingView: V
     var errorView: (_ error: any Error, _ previousContent: Content?) -> ErrorView
     var loadingView: (_ previousContent: Content?) -> LoadingView
 
-    @State private var state: StateMachine = .loading()
+    @State private var state = StateMachine()
     @State private var taskId = UUID()
 
     init(
@@ -55,12 +55,12 @@ struct AsyncTaskView<Content, ContentView: View, ErrorView: View, LoadingView: V
     }
 
     func performTask() async {
-        state = .loading(previousContent: state.content)
+        state.startLoading()
         do {
             let content = try await task()
-            state = .content(content)
+            state.receive(content: content)
         } catch {
-            state = .error(error, previousContent: state.content)
+            state.receive(error: error)
             logger.error("\(error.localizedDescription)")
         }
     }
