@@ -6,8 +6,10 @@
 //
 
 import SwiftUI
+import OSLog
 
 struct AsyncTaskView<Content, ContentView: View, ErrorView: View, LoadingView: View>: View {
+    var logger: Logger
     var task: () async throws -> Content
     var contentView: (_ content: Content, _ reloadTask: @Sendable @escaping () -> Void) -> ContentView
     var errorView: (_ error: any Error, _ previousContent: Content?) -> ErrorView
@@ -17,6 +19,7 @@ struct AsyncTaskView<Content, ContentView: View, ErrorView: View, LoadingView: V
     @State private var taskId = UUID()
 
     init(
+        logger: Logger = Logger(subsystem: "AsyncRecipes", category: "AsyncTaskView"),
         task: @escaping () async throws -> Content,
         @ViewBuilder
         contentView: @escaping (_ content: Content, _ reloadTask: @Sendable @escaping () -> Void) -> ContentView,
@@ -25,6 +28,7 @@ struct AsyncTaskView<Content, ContentView: View, ErrorView: View, LoadingView: V
         @ViewBuilder
         loadingView: @escaping (_ previousContent: Content?) -> LoadingView
     ) {
+        self.logger = logger
         self.task = task
         self.contentView = contentView
         self.errorView = errorView
@@ -57,6 +61,7 @@ struct AsyncTaskView<Content, ContentView: View, ErrorView: View, LoadingView: V
             state = .content(content)
         } catch {
             state = .error(error, previousContent: state.content)
+            logger.error("\(error.localizedDescription)")
         }
     }
 
@@ -75,32 +80,16 @@ extension AsyncTaskView {
         LoadingView == ProgressView<EmptyView, EmptyView>,
         ErrorView == Label<Text, Image>
     {
-        self.task = task
-        self.contentView = contentView
-        self.errorView = { _, _ in
+        self.init(task: task, contentView: contentView) /* errorView: */ { _, _ in
             Label("Something went wrong!", systemImage: "exclamationmark.triangle.fill")
+        } loadingView: { _ in
+            ProgressView()
         }
-        self.loadingView = { _ in ProgressView() }
     }
 }
 
 extension AsyncTaskView {
-    enum StateMachine {
-        case content(_ content: Content)
-        case error(_ error: any Error, previousContent: Content? = nil)
-        case loading(previousContent: Content? = nil)
-
-        var content: Content? {
-            switch self {
-            case let .content(content),
-                let .error(_, previousContent: content?),
-                let .loading(previousContent: content?):
-                content
-            case .error, .loading:
-                nil
-            }
-        }
-    }
+    typealias StateMachine = AsyncRecipes.StateMachine<Content, any Error>
 }
 
 #Preview {
