@@ -21,7 +21,7 @@ struct StateMachineTests {
 
     private typealias Subject = StateMachine<Int, EquatableError>
 
-    @Test private func initialValues() {
+    @Test private func initialValues() async throws {
         #expect(Subject() == .loading())
         #expect(Subject(content: 1) == .content(1))
         #expect(Subject(error: "") == .error(""))

@@ -11,7 +11,7 @@ import SwiftUI
 struct RecipeList: View {
     private var recipeListFetcher: RecipeListFetcher
     @State private var selectedRecipe: Recipe?
-    
+
     init(url: URL) {
         recipeListFetcher = RecipeListFetcher(url: url)
     }
@@ -69,7 +69,6 @@ struct RecipeList: View {
         Tab("Success", systemImage: "star") {
             RecipeList(url: URL(string: "https://d3jbb8n5wk0qxi.cloudfront.net/recipes.json")!)
         }
-
         Tab("Empty", systemImage: "rectangle.portrait") {
             RecipeList(url: URL(string: "https://d3jbb8n5wk0qxi.cloudfront.net/recipes-empty.json")!)
         }
