@@ -25,7 +25,8 @@ struct RecipeList: View {
                         Button {
                             toggleSelectedRecipe(with: recipe)
                         } label: {
-                            RecipeCard(recipe: recipe)
+                            let shouldCardExpand = recipe == selectedRecipe
+                            RecipeCard(recipe: recipe, isExpanded: shouldCardExpand)
                         }
                         .foregroundStyle(.primary)
                         .shadow(radius: 8)
