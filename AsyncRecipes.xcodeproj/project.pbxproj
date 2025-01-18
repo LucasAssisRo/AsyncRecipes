@@ -19,6 +19,9 @@
 /* Begin PBXFileReference section */
 		BD67A3102D3B275A00D58634 /* AsyncRecipes.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AsyncRecipes.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		BD67A3222D3B275C00D58634 /* AsyncRecipesTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AsyncRecipesTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		BDD61D6D2D3C64C900EB147D /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
+		BDD61D6E2D3C64C900EB147D /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
+		BDD61D6F2D3C64D500EB147D /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -55,6 +58,9 @@
 		BD67A3072D3B275A00D58634 = {
 			isa = PBXGroup;
 			children = (
+				BDD61D6F2D3C64D500EB147D /* README.md */,
+				BDD61D6D2D3C64C900EB147D /* .gitignore */,
+				BDD61D6E2D3C64C900EB147D /* LICENSE */,
 				BD67A3122D3B275A00D58634 /* AsyncRecipes */,
 				BD67A3252D3B275C00D58634 /* AsyncRecipesTests */,
 				BD67A3112D3B275A00D58634 /* Products */,
