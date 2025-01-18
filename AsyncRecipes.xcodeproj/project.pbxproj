@@ -35,6 +35,11 @@
 			path = AsyncRecipesTests;
 			sourceTree = "<group>";
 		};
+		BDD61D752D3C729C00EB147D /* ReadmeResources */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = ReadmeResources;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -58,9 +63,10 @@
 		BD67A3072D3B275A00D58634 = {
 			isa = PBXGroup;
 			children = (
-				BDD61D6F2D3C64D500EB147D /* README.md */,
 				BDD61D6D2D3C64C900EB147D /* .gitignore */,
 				BDD61D6E2D3C64C900EB147D /* LICENSE */,
+				BDD61D6F2D3C64D500EB147D /* README.md */,
+				BDD61D752D3C729C00EB147D /* ReadmeResources */,
 				BD67A3122D3B275A00D58634 /* AsyncRecipes */,
 				BD67A3252D3B275C00D58634 /* AsyncRecipesTests */,
 				BD67A3112D3B275A00D58634 /* Products */,
