@@ -17,16 +17,11 @@ struct RecipeDetail: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading) {
-                if let url = recipe.photoUrlLarge.flatMap(URL.init(string:)) {
-                    AsyncImage(url: url) { image in
-                        image.resizable()
-                            .scaledToFill()
-                    } placeholder: {
-                        ProgressView()
-                    }
-                    .frame(maxWidth: .infinity, maxHeight: 400)
-                    .roundedCorners()
-                    .padding()
+                if let photoUrlLarge = recipe.photoUrlLarge {
+                    ImageView(imageName: photoUrlLarge)
+                        .frame(maxWidth: .infinity, maxHeight: 400)
+                        .roundedCorners()
+                        .padding()
                 }
 
                 if let youtubeEmbedUrl {

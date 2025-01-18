@@ -13,12 +13,8 @@ struct RecipeCard: View {
     var body: some View {
         Group {
             HStack {
-                if let url = recipe.photoUrlSmall.flatMap(URL.init(string:)) {
-                    AsyncImage(url: url) { image in
-                        image.resizable()
-                    } placeholder: {
-                        ProgressView()
-                    }
+                if let photoUrlSmall = recipe.photoUrlSmall {
+                    ImageView(imageName: photoUrlSmall)
                     .frame(width: 80, height: 80)
                     .roundedCorners()
                 }
